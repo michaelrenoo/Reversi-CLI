@@ -46,13 +46,21 @@ int main()
 		while (checkInput(userInput) == false && isLegalMove(board, moveList, userInput[0], userInput[1], 'P') == false)
 		{
 			moveList = getAvailableMoves(board, 'P');
-			getPLayerLegalMoves(board, 'P');
-			printLegalMoves(board, 'P');
-			cout << "The second index of the input: ";
-			cout << userInput[1];
-			cout << "\n";
-			cout << "please enter a legal move: \n";
-			cin >> userInput;
+			try
+			{
+				getPLayerLegalMoves(board, 'P');
+				printLegalMoves(board, 'P');
+				cout << "The second index of the input: ";
+				cout << userInput[1];
+				cout << "\n";
+				cout << "please enter a legal move: \n";
+				cin >> userInput;
+			}
+			catch (exception e)
+			{
+				cout << "\nYou don\'t have any legal move at the moment. Computer will move again.\n";
+				continue;
+			}
 
 		}
 		cout << isLegalMove(board, moveList, userInput[0], userInput[1], 'P');
@@ -64,9 +72,20 @@ int main()
 		std::vector<std::vector<int>> moveListComputer;
 		moveListComputer = getAvailableMoves(board, 'C');
 		printLegalMoves(board, 'C');
-		int randomInt = rand() % (moveListComputer.size() - 1);
-		cout << "\nUsing random move number " << randomInt << endl;
-		printBoard(board, moveListComputer.at(randomInt)[0], moveListComputer.at(randomInt)[1]);
+
+		try
+		{
+			int randomInt = rand() % (moveListComputer.size() - 1);
+			cout << "\nUsing random move number " << randomInt << endl;
+			printBoard(board, moveListComputer.at(randomInt)[0], moveListComputer.at(randomInt)[1]);
+		}
+		catch (exception e)
+		{
+			cout << "\nComputer does not have any legal move. Please continue.\n";
+			continue;
+		}
+		
+		
 	}
 	
 	checkWin(board);
