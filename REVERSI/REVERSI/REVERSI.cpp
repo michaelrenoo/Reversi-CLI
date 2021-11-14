@@ -24,7 +24,7 @@ void gameInfo();
 void checkWin(char(&board)[8][8]);
 bool checkInput(string input);
 std::vector<std::vector<int>> getAvailableMoves(char board[8][8], char player);
-std::vector<std::vector<int>> getPLayerLegalMoves(char board[8][8]);
+std::vector<std::vector<int>> getPLayerLegalMoves(char board[8][8], char player);
 void printLegalMoves(char board[8][8], char player);
 bool isLegalMove(char board[8][8], std::vector<std::vector<int>> move_list, char row, char col, char player);
 int rowCheck(char board[8][8], int row, int col, char disc);
@@ -46,7 +46,7 @@ int main()
 		while (checkInput(userInput) == false && isLegalMove(board, moveList, userInput[0], userInput[1], 'P') == false)
 		{
 			moveList = getAvailableMoves(board, 'P');
-			getPLayerLegalMoves(board);
+			getPLayerLegalMoves(board, 'P');
 			printLegalMoves(board, 'P');
 			cout << "The second index of the input: ";
 			cout << userInput[1];
@@ -63,7 +63,9 @@ int main()
 		// Computer's move
 		std::vector<std::vector<int>> moveListComputer;
 		moveListComputer = getAvailableMoves(board, 'C');
+		printLegalMoves(board, 'C');
 		int randomInt = rand() % (moveListComputer.size() - 1);
+		cout << "\nUsing random move number " << randomInt << endl;
 		printBoard(board, moveListComputer.at(randomInt)[0], moveListComputer.at(randomInt)[1]);
 	}
 	
@@ -427,23 +429,18 @@ int rowCheck(char board[8][8], int row, int col, char disc) {
 
 }
 
-std::vector<std::vector<int>> getPLayerLegalMoves(char board[8][8]) {
-	return getAvailableMoves(board, 'P');
+std::vector<std::vector<int>> getPLayerLegalMoves(char board[8][8], char player) {
+	return getAvailableMoves(board, player);
 }
 
 void printLegalMoves(char board[8][8], char player) {
 	string col = "abcdefgh";
 	string input = "";
-	if (player == 'P') {
-		std::cout << "\n Player legal moves:\n";
-		auto v = getPLayerLegalMoves(board);
-		for (const auto& vec : v) {
-			std::cout << "(" << col.at(vec[0]) << "," << vec[1] << ")  ";
-			//input.push_back(col.at(vec[0]));
-			//input.push_back(vec[1]);
-			//::legalInputs->append(input);
-			//input = "";
-		}
-		std::cout << std::endl;
+	string role = (player == 'P') ? "Player" : "Computer";
+	std::cout << "\n " << role << " legal moves:\n";
+	auto v = getPLayerLegalMoves(board, player);
+	for (const auto& vec : v) {
+		std::cout << "(" << col.at(vec[0]) << "," << vec[1] << ")  ";
 	}
+	std::cout << std::endl;
 }
