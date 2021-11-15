@@ -43,6 +43,8 @@ int main()
 		moveList = getAvailableMoves(board, 'P');
 		printLegalMoves(board, 'P');
 		cout << "Please give your input: ";
+		cin >> userInput;
+		if (userInput == "Exit" || userInput == "exit") break;
 		while (checkInput(userInput) == false && isLegalMove(board, moveList, userInput[0], userInput[1], 'P') == false)
 		{
 			moveList = getAvailableMoves(board, 'P');
@@ -85,7 +87,7 @@ int main()
 			continue;
 		}
 		
-		
+
 	}
 	
 	checkWin(board);
@@ -146,7 +148,8 @@ void startgame(char board[8][8])
 
 }
 bool checkInput(string input) {
-	cin >> input;
+	//cin >> input;
+	input == ::userInput;
 	int inputOkay = 0;  // To check whether user input is acceptable or not. 2 to be acceptable
 	if (input == "start" || input == "Start") {
 		cout << "True";
