@@ -1,3 +1,14 @@
+/**
+ * @file REVERSI.cpp
+ * @author  Michael Reno, Leticia Atonlieu, Mitterand Assagui, Mohamed Rouissi (Team 1C)
+ * @brief   The all-in-one logic for a simple text based Reversi game
+ * @version 0.1
+ * @date 2021-11-15
+ *
+ * For more info about Reversi, check out https://en.wikipedia.org/wiki/Reversi
+ */
+
+
 #include <iostream>
 #include <stdexcept>
 #include <array>
@@ -8,16 +19,18 @@
 
 using namespace std;
 
-std::string userInput = "start";
-std::string legalInputs[];
-int inputX = 0;
-int inputY = 0;
+std::string userInput = "start";  // Store user input
+std::string legalInputs[];  // Store all legal inputs
+int inputX = 0;  // Store the x-coordinate
+int inputY = 0;  // Store the y-coordinate
 // Check all 8 surround positions
 int surroundingPosDeltas[8][2] = { {-1, -1}, {-1, 0}, {-1, 1}, // 3 positions above
 									{0, -1}, {0, 1}, // 2 positions on same row
 								  {1, -1}, {1, 0}, {1, 1} }; // 3 positions below
-//const bool PLAY_AI = true; // set to true if you want to play 
 
+
+// Functions
+// Comments are placed on each function.
 void startgame(char board[8][8]);
 void printBoard(char newBoard[8][8], int inputX_C = -1, int inputY_C = -1, string input = ::userInput);
 void gameInfo();
@@ -27,7 +40,6 @@ std::vector<std::vector<int>> getAvailableMoves(char board[8][8], char player);
 std::vector<std::vector<int>> getPLayerLegalMoves(char board[8][8], char player);
 void printLegalMoves(char board[8][8], char player);
 bool isLegalMove(char board[8][8], std::vector<std::vector<int>> move_list, char row, char col, char player);
-int rowCheck(char board[8][8], int row, int col, char disc);
 void flip(char(board)[8][8], int row, int col, char player);
 
 
@@ -37,7 +49,7 @@ int main()
 	std::vector<std::vector<int>> moveList;
 	gameInfo();
 	startgame(board);
-	//checkInput(userInput);
+	//checkInput(userInput);  // Only for debugging purposes.
 	while (userInput != "Exit" || userInput != "exit")
 	{
 		moveList = getAvailableMoves(board, 'P');
@@ -94,6 +106,10 @@ int main()
 
 }
 
+/**
+ * Give a brief explanation on how to start and interact with the CLI game
+ * The game will only start after "start" is given as an input.
+ */
 void gameInfo() {
 	//cout << "Welcome to a text based Reversi game!" << endl;
 	//cout << "To learn more about the game, visit https://en.wikipedia.org/wiki/Reversi ." << endl;
@@ -126,7 +142,11 @@ void gameInfo() {
 
 }
 
-// Initialize Game Board 
+
+/**
+ * Initialize game board with two P blocks and two C blocks in the middle
+ * param: board, a 2D char array that stores and replicate the board. Board[y][x].
+ */
 void startgame(char board[8][8])
 {
 	std::cout << "   A  B  C  D  E  F  G  H\n";
@@ -147,6 +167,12 @@ void startgame(char board[8][8])
 	}
 
 }
+
+/**
+ * Handling user input and parse it to check if the input follows the correct Regex.
+ * param: input, a string containing user input
+ * return: true, if input is acceptable; false, if not.
+ */
 bool checkInput(string input) {
 	//cin >> input;
 	input == ::userInput;
@@ -193,7 +219,14 @@ bool checkInput(string input) {
 }
 
 
-// Print the new board after move
+/**
+ * Print the new board with the input from both player and computer
+ * and also call the flip() function to check if a block will be switched.
+ * param: newBoard, a 2D array containing the game board.
+ * param: inputX_C, an int containing x-coordinate of computer's move. Standard: -1
+ * param: inputY_C, an int containing y-coordinate of computer's move. Standard: -1
+ * param: input, a string containing player's input according to the regex. Standard: ::userInput
+ */
 void printBoard(char newBoard[8][8], int inputX_C, int inputY_C, string input)
 {
 	std::cout << '\n' << "New Board" << '\n';
@@ -226,7 +259,12 @@ void printBoard(char newBoard[8][8], int inputX_C, int inputY_C, string input)
 }
 
 
-// go through whole board, and count pieces of passed-in player
+/**
+ * Go through the whole board and count pieces of both P and C.
+ * param: board, a 2D array that replicate the game board.
+ * param: actor, a char that defines which player pieces is to be counted.
+ * return: int, how many pieces the actor has in the board.
+ */
 int checkCurrentResult(char board[8][8], char actor) {
 	int total = 0;
 	for (int i = 0; i < 8; ++i)
@@ -237,7 +275,11 @@ int checkCurrentResult(char board[8][8], char actor) {
 	return total;
 }
 
-//  Check and print the checkCurrentResult and the winner
+
+/**
+ * Check and print the number of pieces each player has and declare the winner.
+ * param: board, a 2D array that replicate the game board.
+ */
 void checkWin(char(&board)[8][8]) {
 	int player_total = checkCurrentResult(board, 'P');
 	int Computer_total = checkCurrentResult(board, 'C');
@@ -253,8 +295,18 @@ void checkWin(char(&board)[8][8]) {
 
 }
 
-// Check if the character in the trajectory is the opponent's pieces followed by player's piece
-// Code from https://github.com/drohh/othello
+
+/**
+ * Check if the character in the trajectory is the opponent's pieces and then followed by player's piece.
+ * Code from https://github.com/drohh/othello
+ * param: board, a 2D array that replicate the game board.
+ * param: charInPos, a char that declares the character at a position. Can only be P, C or -.
+ * param: row, int stating the row coordinate in the board.
+ * param: col, int stating the column coordinate in the board.
+ * param: trajectory, an int array with all the neighboring coordinates.
+ * param: player, a char declaring the character at play.
+ * return: true, if opponent's pieces before player's piece is found; false, if not.
+ */
 bool checkTrajectory(char board[8][8], char charInPos, int row, int col, int trajectory[], char player)
 {
 	char otherPlayer = (player == 'P') ? 'C' : 'P';
@@ -283,7 +335,17 @@ bool checkTrajectory(char board[8][8], char charInPos, int row, int col, int tra
 	return false;
 }
 
-// Return a list of position to be flipped
+
+/**
+ * Calculate and return a list of position(s) to be flipped later on
+ * param: board, a 2D array that replicate the game board.
+ * param: row, int stating the row coordinate in the board.
+ * param: col, int stating the column coordinate in the board.
+ * param: player, a char declaring the character at play.
+ * param: trajectory, an int array with all the neighboring coordinates.
+ * param: discs_to_flip, an int 2D vector to store the coordinates of pieces to be flipped.
+ * return: a 2D int vector containing coordinates of pieces to be flipped.
+ */
 std::vector<std::vector<int>> listFlip(char(board)[8][8], int row, int col, char player, int trajectory[], std::vector<std::vector<int>> discs_to_flip)
 {
 	char otherPlayer = (player == 'P') ? 'C' : 'P';
@@ -294,7 +356,7 @@ std::vector<std::vector<int>> listFlip(char(board)[8][8], int row, int col, char
 
 	// traverse over the opponent's pieces, while saving the positions to the big list to be flipped later
 	while (player == otherPlayer) {
-		std::cout << "flipping [" << row << ", " << col << "]\n";
+		//std::cout << "flipping [" << row << ", " << col << "]\n";  // Only for debugging process
 		std::vector<int> disc = { col, row };
 		discs_to_flip.push_back(disc);
 		row += trajectory[0];
@@ -306,8 +368,14 @@ std::vector<std::vector<int>> listFlip(char(board)[8][8], int row, int col, char
 	return discs_to_flip;
 }
 
-// TODO: refactor this function into separate functions!
-// flips appropriate pieces after a disc is placed down (called after verifying the move isFlippable)
+
+/**
+ * Flip the appropriate pieces after a piece is placed down. (Will be called after verifying that the move isFlippable).
+ * param: board, a 2D array that replicate the game board.
+ * param: row, an int containing the row coordinate of the piece to be checked.
+ * param: col, an int containing the column coordinate of the piece to be checked.
+ * param: player, a char declaring the player at play.
+ */
 void flip(char(board)[8][8], int row, int col, char player) {
 	// declare a list of positions of discs that will be flipped
 	// e.g. {{0,1}, {0,2}} means disc at location board[0][1] & board[0][2] will be flipped
@@ -343,8 +411,14 @@ void flip(char(board)[8][8], int row, int col, char player) {
 }
 
 
-// Check if placing a piece at [x,y] in the board with flip one (or more) of the opponent's pieces
-// Code from https://github.com/drohh/othello
+/**
+* Check if placing a piece at [x,y] in the board with flip one (or more) of the opponent's pieces
+* Code from https://github.com/drohh/othello
+* param: board, a 2D array that replicate the game board.
+* param : row, int stating the row coordinate in the board.
+* param : col, int stating the column coordinate in the board.
+* param : player, a char declaring the character at play.
+*/
 bool isFlippable(char board[8][8], int row, int col, char player) {
 	char otherPlayer = (player == 'P') ? 'C' : 'P';
 
@@ -364,6 +438,17 @@ bool isFlippable(char board[8][8], int row, int col, char player) {
 	return false;
 }
 
+
+/**
+* Check if the coordinate given as input depicts a legal move according to the game's rules or not.
+* Code from https://github.com/drohh/othello
+* param: board, a 2D array that replicate the game board.
+* param: move_list, a 2D int vector that stores all legal moves at the time.
+* param: row, int stating the row coordinate in the board.
+* param: col, int stating the column coordinate in the board.
+* param: player, a char declaring the character at play.
+* return: true, if the input is included in the list of legal moves; false, if not.
+*/
 bool isLegalMove(char board[8][8], std::vector<std::vector<int>> move_list, char row, char col, char player) {
 	std::string rows = "abcdefgh";
 	std::string cols = "01234567";
@@ -390,6 +475,14 @@ bool isLegalMove(char board[8][8], std::vector<std::vector<int>> move_list, char
 	return false;
 }
 
+
+/**
+* Get all available moves for the given player at a time.
+* Code from https://github.com/drohh/othello
+* param: board, a 2D array that replicate the game board.
+* param: player, a char declaring the character at play.
+* return: a 2D int vector, that stores all available moves to the player at the time.
+*/
 std::vector<std::vector<int>> getAvailableMoves(char board[8][8], char player) {
 
 	std::vector<std::vector<int>> move_list;
@@ -416,45 +509,22 @@ std::vector<std::vector<int>> getAvailableMoves(char board[8][8], char player) {
 	return move_list;
 }
 
-int rowCheck(char board[8][8], int row, int col, char disc) {
-	int discFlipped = 0;
-
-	if (board[row][col] != '- ')
-		return 0;
-
-	board[row][col] = disc;
-
-	char opponentDisc;
-	if (disc == 'P')
-		opponentDisc = 'C';
-	else
-		opponentDisc = 'P';
-	//Check are there discs on the right side to flip
-	int disc_pos = -1;
-	for (int c = col + 1; c < 8 && board[row][c] != ' ' && disc_pos == -1; c++)
-	{
-		if (board[row][c] == disc)
-			disc_pos = c;
-
-	}
-
-	//Check are there discs on the left side to flip
-	disc_pos = -1;
-	for (int c = col - 1; c >= 0 && board[row][c] != ' ' && disc_pos == -1; c--)
-	{
-		if (board[row][c] == disc) {
-			disc_pos = c;
-
-		}
-	}
-
-
-}
-
+/**
+* Get a player's legal moves
+* param: board, a 2D array that replicate the game board.
+* param: player, a char declaring the character at play.
+* return: a 2D int vector containing all legal moves of the player at a time.
+*/
 std::vector<std::vector<int>> getPLayerLegalMoves(char board[8][8], char player) {
 	return getAvailableMoves(board, player);
 }
 
+
+/**
+* Print a player's legal moves to the console.
+* param: board, a 2D array that replicate the game board.
+* param: player, a char declaring the character at play.
+*/
 void printLegalMoves(char board[8][8], char player) {
 	string col = "abcdefgh";
 	string input = "";
